@@ -5,13 +5,13 @@ using System.ComponentModel.DataAnnotations;
 public class Properties
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     
-    public int OwnerId { get; set; }
+    public Guid OwnerId { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public string PropertyType { get; set; }
-    public int AddressId { get; set; }
+    public Guid AddressId { get; set; }
     public int MaxGuests { get; set; }
     public TimeSpan CheckInTime { get; set; }
     public TimeSpan CheckOutTime { get; set; }

@@ -24,6 +24,10 @@ public class BookingDbContext : DbContext
 
         modelBuilder.Entity<UserRoles>()
             .HasKey(ur => new { ur.UserId, ur.RoleId });
+        
+        modelBuilder.Entity<Users>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
         modelBuilder.Entity<OwnerProfiles>()
             .HasOne(op => op.User)
@@ -66,5 +70,22 @@ public class BookingDbContext : DbContext
             .WithMany(u => u.Reviews)
             .HasForeignKey(r => r.GuestId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
+        modelBuilder.Entity<Bookings>()
+            .Property(b => b.CleaningFee)
+            .HasPrecision(18, 2);
+        
+        modelBuilder.Entity<Bookings>()
+            .Property(b => b.AmenitiesUpCharge)
+            .HasPrecision(18, 2);
+        
+        modelBuilder.Entity<Bookings>()
+            .Property(b => b.PriceForPeriod)
+            .HasPrecision(18, 2);
+        
+        modelBuilder.Entity<Bookings>()
+            .Property(b => b.TotalPrice)
+            .HasPrecision(18, 2);
     }
 }

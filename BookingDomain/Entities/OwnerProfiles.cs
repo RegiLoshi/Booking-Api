@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 public class OwnerProfiles
 {
     [Key]
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
     public string IdentityCardNumber { get; set; } = string.Empty;
     public bool VerificationStatus { get; set; }
     public string BussinessName { get; set; } = string.Empty;
