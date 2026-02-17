@@ -3,15 +3,19 @@ using BookingDomain;
 using BookingDomain.Repositories;
 using UserEntity = BookingDomain.Users;
 using BCrypt.Net;
+using FluentValidation;
+
 namespace BookingApplication.Features.Users.Register;
 
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Guid>
 {
     private readonly IRepository<UserEntity> _userRepository;
+    private readonly IValidator<UserEntity> _validator;
 
-    public RegisterUserCommandHandler(IRepository<UserEntity> userRepository)
+    public RegisterUserCommandHandler(IRepository<UserEntity> userRepository, IValidator<UserEntity> validator)
     {
         _userRepository = userRepository;
+        _validator = validator;
     }
 
     public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -29,6 +33,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, G
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+
+        await _validator.ValidateAndThrowAsync(user, cancellationToken);
 
         await _userRepository.Add(user, cancellationToken);
 
