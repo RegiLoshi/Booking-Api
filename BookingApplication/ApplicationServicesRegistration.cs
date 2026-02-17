@@ -11,7 +11,7 @@ public static class ApplicationServicesRegistration
     public static IServiceCollection RegisterApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        services.AddValidatorsFromAssemblyContaining<UserValidator>();
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         return services;
     }
 }
