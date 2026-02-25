@@ -7,6 +7,8 @@ using BookingDomain.Repositories;
 using BookingInfrastructure.Repositories;
 using BookingInfrastructure.Contracts.Repositories;
 using BookingApplication.Abstractions.Contracts.Repositories;
+using BookingApplication.Abstractions.Contracts.AuthService;
+using BookingInfrastructure.Contracts.AuthService;
 
 public static class InfrastructureRegistration
 {
@@ -20,6 +22,7 @@ public static class InfrastructureRegistration
         
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuthManager, AuthManager>();
         
         return services;
     }
