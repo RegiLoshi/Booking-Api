@@ -30,16 +30,18 @@ public class AuthManager
         
         var expiration = DateTime.UtcNow.AddSeconds(
             Convert.ToDouble(jwtSettings.GetSection("Lifetime").Value));
-        
+
         var token = new JwtSecurityToken(
             claims: claims,
             expires: expiration,
-            signingCredentials: signingCredentials))
+            signingCredentials: signingCredentials);
+        
+        return token;
     }
 
     private SigningCredentials GetSigningCredentials()
     {
-        var key = _configuration("JwtConfig:SecretKey");
+        var key = _configuration["JwtConfig:SecretKey"];
         var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
         return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
     }

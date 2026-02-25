@@ -1,18 +1,17 @@
 using MediatR;
-using BookingDomain;
-using BookingDomain.Repositories;
-using UserEntity = BookingDomain.Entities.Users;
+using BookingApplication.Abstractions.Contracts.Repositories;
 using BCrypt.Net;
 using FluentValidation;
+using UserEntity = BookingDomain.Entities.Users;
 
 namespace BookingApplication.Features.Users.Register;
 
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Guid>
 {
-    private readonly IRepository<UserEntity> _userRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IValidator<UserEntity> _validator;
 
-    public RegisterUserCommandHandler(IRepository<UserEntity> userRepository, IValidator<UserEntity> validator)
+    public RegisterUserCommandHandler(IUserRepository userRepository, IValidator<UserEntity> validator)
     {
         _userRepository = userRepository;
         _validator = validator;
@@ -22,8 +21,13 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, G
     {
         
         //check for unique email first
+        var existingUser = await _userRepository.GetUserByEmail(request.CreateUserDto.Email, cancellationToken);
+        if (existingUser != null)
+        {
+            throw new Exception("User with this email already exists");
+        }
         
-        var user = new UserEntity
+        var user = new UserEntity()
         {
             Id = Guid.NewGuid(),
             FirstName = request.CreateUserDto.FirstName,
