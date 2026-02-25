@@ -1,4 +1,5 @@
-namespace BookingDomain;
+namespace BookingDomain.Entities;
+
 
 public class UserRoles
 {

@@ -1,4 +1,4 @@
-namespace BookingDomain;
+namespace BookingDomain.Entities;
 
 using System.ComponentModel.DataAnnotations;
 

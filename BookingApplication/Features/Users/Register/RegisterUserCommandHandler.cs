@@ -1,7 +1,7 @@
 using MediatR;
 using BookingDomain;
 using BookingDomain.Repositories;
-using UserEntity = BookingDomain.Users;
+using UserEntity = BookingDomain.Entities.Users;
 using BCrypt.Net;
 using FluentValidation;
 
@@ -20,13 +20,16 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, G
 
     public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
+        
+        //check for unique email first
+        
         var user = new UserEntity
         {
             Id = Guid.NewGuid(),
             FirstName = request.CreateUserDto.FirstName,
             LastName = request.CreateUserDto.LastName,
             Email = request.CreateUserDto.Email,
-            Password = BCrypt.Net.BCrypt.HashPassword(request.CreateUserDto.Password),
+            Password = BCrypt.Net.BCrypt.EnhancedHashPassword(request.CreateUserDto.Password, 13),
             PhoneNumber = request.CreateUserDto.PhoneNumber,
             ProfilePictureUrl = request.CreateUserDto.ProfilePictureUrl ?? string.Empty,
             IsActive = true,

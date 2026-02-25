@@ -1,5 +1,5 @@
 using FluentValidation;
-using BookingDomain;
+using BookingDomain.Entities;
 
 namespace BookingApplication.Validator;
 

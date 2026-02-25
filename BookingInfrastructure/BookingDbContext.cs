@@ -1,7 +1,7 @@
 namespace BookingInfrastructure;
 
 using Microsoft.EntityFrameworkCore;
-using BookingDomain;
+using BookingDomain.Entities;
 
 public class BookingDbContext : DbContext
 {
