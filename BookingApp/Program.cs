@@ -1,3 +1,4 @@
+using BookingApp.Middleware;
 using BookingInfrastructure;
 using BookingApplication;
 using BookingApplication.Features.Users.Register;
@@ -18,6 +19,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.MapGet("/", () => Results.Ok(new { message = "Welcome to Booking API" }));
 
@@ -41,4 +44,5 @@ app.MapPost("v1/user/login", async (LogInUserCommand command, IMediator mediator
     var result = await mediator.Send(command);
     return Results.Ok(result);
 });
+
 app.Run();

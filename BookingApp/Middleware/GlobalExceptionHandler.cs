@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace BookingApp.Middleware;
 
-public class GlobalExceptionHandler
+public class GlobalExceptionHandler(RequestDelegate _next, ILogger<GlobalExceptionHandler> _logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalExceptionHandler> _logger;
-
     public async Task InvokeAsync(HttpContext httpContext)
     {
         try
