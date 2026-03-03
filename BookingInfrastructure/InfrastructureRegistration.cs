@@ -1,3 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 namespace BookingInfrastructure;
 
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +28,32 @@ public static class InfrastructureRegistration
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthManager, AuthManager>();
         
+        return services;
+    }
+
+    public static IServiceCollection ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection("JwtConfig");
+        var secretKey = jwtSettings.GetSection("SecretKey").Value;
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
+                };
+            }
+        );
         return services;
     }
 }

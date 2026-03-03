@@ -11,17 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterInfrastructure(builder.Configuration);
 builder.Services.RegisterApplication();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true
-        };
-    });
+builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddAuthorization();
 var app = builder.Build();
 
