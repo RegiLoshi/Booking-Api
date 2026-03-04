@@ -1,7 +1,6 @@
 using MediatR;
 using BookingApplication.Abstractions.Contracts.Repositories;
 using BookingApplication.Abstractions.Contracts.AuthService;
-using BCrypt.Net;
 
 namespace BookingApplication.Features.Users.Login
 {

@@ -1,6 +1,7 @@
 using BookingApp.Middleware;
 using BookingInfrastructure;
 using BookingApplication;
+using BookingApplication.Features.Users.ChangePassword;
 using BookingApplication.Features.Users.Register;
 using BookingApplication.Features.Users.Login;
 using BookingApplication.Features.Users.UpdateUser;
@@ -47,6 +48,12 @@ app.MapPost("v1/user/login", async (LogInUserCommand command, IMediator mediator
 });
 
 app.MapPost("v1/user/update", async (UpdateUserCommand command, IMediator mediator) =>
+{
+    var result = await mediator.Send(command);
+    return Results.Ok(result);
+});
+
+app.MapPost("v1/user/changePassword", async (UserChangePasswordCommand command, IMediator mediator) =>
 {
     var result = await mediator.Send(command);
     return Results.Ok(result);
