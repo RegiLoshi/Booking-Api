@@ -17,7 +17,7 @@ public class Bookings
     public decimal AmenitiesUpCharge { get; set; }
     public decimal PriceForPeriod { get; set; }
     public decimal TotalPrice { get; set; }
-    public string BookingStatus { get; set; } = string.Empty;
+    public BookingStatus BookingStatus { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime LastModifiedAt { get; set; }
     public DateTime CreatedOnUtc { get; set; }

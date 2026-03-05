@@ -21,6 +21,8 @@ public class Properties
     public DateTime CreatedAt { get; set; }
     public DateTime LastModifiedAt { get; set; }
     public DateTime? LastBookedOnUtc { get; set; }
+    
+    public List<Amenity> Amenities { get; set; }
 
     public Users Owner { get; set; } = null!;
     public Address Address { get; set; } = null!;
