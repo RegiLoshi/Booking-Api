@@ -18,6 +18,7 @@ public class Bookings
     public decimal PriceForPeriod { get; set; }
     public decimal TotalPrice { get; set; }
     public BookingStatus BookingStatus { get; set; }
+    
     public DateTime CreatedAt { get; set; }
     public DateTime LastModifiedAt { get; set; }
     public DateTime CreatedOnUtc { get; set; }

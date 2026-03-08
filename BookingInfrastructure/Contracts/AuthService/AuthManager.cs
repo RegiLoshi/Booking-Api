@@ -52,11 +52,13 @@ public class AuthManager
             .Select(ur => ur.Role)
             .ToList();
 
+        const string userIdClaimType = "userId";
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(userIdClaimType, user.Id.ToString()),
         };
         
         claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role.Name)));

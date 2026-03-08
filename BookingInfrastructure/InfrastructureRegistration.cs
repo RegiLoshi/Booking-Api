@@ -26,6 +26,8 @@ public static class InfrastructureRegistration
         
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IPropertyRepository, PropertyRepository>();
+        services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IAuthManager, AuthManager>();
         
         return services;
