@@ -23,6 +23,7 @@ public class Properties
     public DateTime? LastBookedOnUtc { get; set; }
     
     public List<Amenity> Amenities { get; set; }
+    public List<string> ImageUrls { get; set; } = new();
 
     public Users Owner { get; set; } = null!;
     public Address Address { get; set; } = null!;

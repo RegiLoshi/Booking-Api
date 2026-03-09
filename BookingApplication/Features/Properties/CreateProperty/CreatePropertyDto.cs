@@ -13,8 +13,8 @@ public class CreatePropertyDto
     public TimeSpan CheckOutTime { get; set; }
     public bool IsActive { get; set; }
     public List<Amenity> Amenities { get; set; }
-    
-    
+    public List<string> ImageUrls { get; set; } = new();
+
     public class AddressDto
     {
         public string Country { get; set; }

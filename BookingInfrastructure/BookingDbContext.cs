@@ -1,6 +1,8 @@
 namespace BookingInfrastructure;
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using BookingDomain.Entities;
 
 public class BookingDbContext : DbContext
@@ -52,6 +54,18 @@ public class BookingDbContext : DbContext
             .WithMany(a => a.Properties)
             .HasForeignKey(p => p.AddressId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        var imageUrlsComparer = new ValueComparer<List<string>>(
+            (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+            c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+            c => c == null ? new List<string>() : c.ToList());
+
+        modelBuilder.Entity<Properties>()
+            .Property(p => p.ImageUrls)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v),
+                v => string.IsNullOrEmpty(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v)!,
+                imageUrlsComparer);
 
         modelBuilder.Entity<Bookings>()
             .HasOne(b => b.Property)

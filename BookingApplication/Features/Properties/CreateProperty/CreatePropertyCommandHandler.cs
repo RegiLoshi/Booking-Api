@@ -48,7 +48,8 @@ public class CreatePropertyCommandHandler(IPropertyRepository _propertyRepositor
             IsApproved = false,
             CreatedAt = DateTime.UtcNow,
             LastModifiedAt = DateTime.UtcNow,
-            Amenities = dto.Amenities ?? new List<Amenity>()
+            Amenities = dto.Amenities ?? new List<Amenity>(),
+            ImageUrls = dto.ImageUrls ?? new List<string>()
         };
 
         await _propertyRepository.Add(property, cancellationToken);
