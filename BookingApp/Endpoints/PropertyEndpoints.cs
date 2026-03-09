@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using BookingApplication.Features.Properties.CreateProperty;
+using BookingApplication.Features.Properties.UpdateProperty;
 using FluentValidation;
 using MediatR;
 
@@ -32,6 +33,23 @@ public static class PropertyEndpoints
             {
                 return Results.BadRequest(ex.Errors);
             }
+        });
+
+        group.MapPut("/{id:guid}", async (Guid id, UpdatePropertyDto dto, HttpContext httpContext, IMediator mediator) =>
+        {
+            var userIdClaim = httpContext.User.FindFirstValue("userId");
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var ownerId))
+                return Results.Unauthorized();
+
+            var command = new UpdatePropertyCommand
+            {
+                PropertyId = id,
+                OwnerId = ownerId,
+                UpdatePropertyDto = dto
+            };
+
+            var updated = await mediator.Send(command);
+            return updated ? Results.Ok() : Results.NotFound();
         });
     }
 }
