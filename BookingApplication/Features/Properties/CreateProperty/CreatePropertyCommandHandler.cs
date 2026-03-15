@@ -40,6 +40,8 @@ public class CreatePropertyCommandHandler(IPropertyRepository _propertyRepositor
             Name = dto.Name,
             Description = dto.Description,
             PropertyType = dto.PropertyType,
+            PricePerDay = dto.PricePerDay,
+            CleaningFreePerDay = dto.CleaningFreePerDay,
             AddressId = addressId,
             MaxGuests = dto.MaxGuests,
             CheckInTime = dto.CheckInTime,

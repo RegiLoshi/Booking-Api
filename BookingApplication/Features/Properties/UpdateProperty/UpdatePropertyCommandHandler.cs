@@ -23,6 +23,8 @@ public class UpdatePropertyCommandHandler(
         property.Name = dto.Name;
         property.Description = dto.Description;
         property.PropertyType = dto.PropertyType;
+        property.PricePerDay = dto.PricePerDay;
+        property.CleaningFreePerDay = dto.CleaningFreePerDay;
         property.MaxGuests = dto.MaxGuests;
         property.CheckInTime = dto.CheckInTime;
         property.CheckOutTime = dto.CheckOutTime;

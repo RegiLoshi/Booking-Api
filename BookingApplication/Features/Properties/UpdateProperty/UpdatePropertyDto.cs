@@ -7,6 +7,8 @@ public class UpdatePropertyDto
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string PropertyType { get; set; } = string.Empty;
+    public decimal PricePerDay { get; set; }
+    public decimal CleaningFreePerDay { get; set; }
     public UpdateAddressDto? Address { get; set; }
     public int MaxGuests { get; set; }
     public TimeSpan CheckInTime { get; set; }

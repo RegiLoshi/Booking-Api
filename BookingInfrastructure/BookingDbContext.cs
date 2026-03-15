@@ -67,6 +67,14 @@ public class BookingDbContext : DbContext
                 v => string.IsNullOrEmpty(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v)!,
                 imageUrlsComparer);
 
+        modelBuilder.Entity<Properties>()
+            .Property(p => p.PricePerDay)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Properties>()
+            .Property(p => p.CleaningFreePerDay)
+            .HasPrecision(18, 2);
+
         modelBuilder.Entity<Bookings>()
             .HasOne(b => b.Property)
             .WithMany(p => p.Bookings)

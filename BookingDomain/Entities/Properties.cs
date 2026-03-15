@@ -12,6 +12,11 @@ public class Properties
     public string Name { get; set; }
     public string Description { get; set; }
     public string PropertyType { get; set; }
+    
+    public decimal PricePerDay { get; set; }
+    
+    public decimal CleaningFreePerDay { get; set; }
+
     public Guid AddressId { get; set; }
     public int MaxGuests { get; set; }
     public TimeSpan CheckInTime { get; set; }
