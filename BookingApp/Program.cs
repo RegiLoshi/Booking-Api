@@ -21,5 +21,6 @@ app.MapRootEndpoints();
 app.MapUserEndpoints();
 app.MapPropertyEndpoints();
 app.MapBookingEndpoints();
+app.MapReviewEndpoints();
 
 app.Run();
