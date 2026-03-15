@@ -20,5 +20,6 @@ app.UseMiddleware<GlobalExceptionHandler>();
 app.MapRootEndpoints();
 app.MapUserEndpoints();
 app.MapPropertyEndpoints();
+app.MapBookingEndpoints();
 
 app.Run();
