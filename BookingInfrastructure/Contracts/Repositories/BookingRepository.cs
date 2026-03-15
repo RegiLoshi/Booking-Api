@@ -31,4 +31,15 @@ public class BookingRepository(BookingDbContext _context) : IBookingRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<bool> HasOverlappingBooking(Guid propertyId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        // Overlap condition: newStart < existing.EndDate && newEnd > existing.StartDate
+        return await _context.Bookings
+            .AnyAsync(b =>
+                b.PropertyId == propertyId &&
+                (b.BookingStatus == BookingStatus.Pending || b.BookingStatus == BookingStatus.Confirmed) &&
+                startDate < b.EndDate && endDate > b.StartDate,
+                cancellationToken);
+    }
+
 }

@@ -40,6 +40,18 @@ public class CreateBookingCommandHandler(
             throw new ArgumentException("Stay must be at least one night");
         }
 
+        // Check for overlapping bookings on this property (Pending or Confirmed)
+        var hasOverlap = await bookingRepository.HasOverlappingBooking(
+            dto.PropertyId,
+            dto.StartDate.Date,
+            dto.EndDate.Date,
+            cancellationToken);
+
+        if (hasOverlap)
+        {
+            throw new InvalidOperationException("The property is already booked for the selected dates.");
+        }
+
         var cleaningFee = property.CleaningFreePerDay * nights;
         var priceForPeriod = property.PricePerDay * nights;
 
@@ -82,7 +94,7 @@ public class CreateBookingCommandHandler(
             CreatedAt = now,
             LastModifiedAt = now,
             CreatedOnUtc = now,
-            ConfirmedOnUtc = now
+            ConfirmedOnUtc = null
         };
 
         await bookingRepository.Add(booking, cancellationToken);
