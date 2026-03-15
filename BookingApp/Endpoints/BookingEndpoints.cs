@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using BookingApplication.Features.Booking.CreateBooking;
+using BookingApplication.Features.Booking.MarkBookingCompleted;
 using BookingApplication.Features.Booking.UpdateBookingStatus;
 using BookingDomain.Entities;
 using MediatR;
@@ -77,6 +78,12 @@ public static class BookingEndpoints
 
             var success = await mediator.Send(command);
             return success ? Results.Ok() : Results.Forbid();
+        });
+
+        group.MapPost("/{id:guid}/complete", async (Guid id, IMediator mediator) =>
+        {
+            var success = await mediator.Send(new MarkBookingCompletedCommand { BookingId = id });
+            return success ? Results.Ok() : Results.NotFound();
         });
     }
 }

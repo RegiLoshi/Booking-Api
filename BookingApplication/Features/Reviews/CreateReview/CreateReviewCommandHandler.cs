@@ -37,14 +37,15 @@ public class CreateReviewCommandHandler(
         }
 
         // Prevent duplicate reviews
-        if (booking.Review != null)
+        var alreadyReviewed = await reviewRepository.ExistsForBooking(booking.Id, cancellationToken);
+        if (alreadyReviewed)
         {
             throw new InvalidOperationException("This booking has already been reviewed.");
         }
 
         var now = DateTime.UtcNow;
 
-        var review = new Reviews
+        var review = new BookingDomain.Entities.Reviews
         {
             Id = Guid.NewGuid(),
             BookingId = booking.Id,

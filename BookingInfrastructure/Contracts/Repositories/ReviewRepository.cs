@@ -31,6 +31,11 @@ public class ReviewRepository(BookingDbContext _context) : IReviewRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<bool> ExistsForBooking(Guid bookingId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Reviews.AnyAsync(r => r.BookingId == bookingId, cancellationToken);
+    }
+
     public async Task<double?> GetAverageRatingForProperty(Guid propertyId, CancellationToken cancellationToken = default)
     {
         return await _context.Reviews
