@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Primitives;
 
 namespace BookingInfrastructure;
 
@@ -60,6 +61,25 @@ public static class InfrastructureRegistration
                     ClockSkew = TimeSpan.Zero,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!))
+                };
+
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var path = context.HttpContext.Request.Path;
+                        if (path.StartsWithSegments("/hubs/booking"))
+                        {
+                            if (context.HttpContext.Request.Query.TryGetValue("access_token", out StringValues token) &&
+                                !StringValues.IsNullOrEmpty(token))
+                            {
+                                context.Token = token.ToString();
+                            }
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             }
         );

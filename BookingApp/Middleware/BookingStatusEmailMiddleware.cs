@@ -3,8 +3,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using BookingApplication.Abstractions.Contracts.Email;
 using BookingApplication.Abstractions.Contracts.Repositories;
+using BookingApp.Hubs;
 using BookingDomain.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace BookingApp.Middleware;
@@ -14,6 +16,7 @@ public class BookingStatusEmailMiddleware(
     IPropertyRepository propertyRepository,
     IUserRepository userRepository,
     IEmailSender emailSender,
+    IHubContext<BookingHub> hubContext,
     ILogger<BookingStatusEmailMiddleware> logger)
     : IMiddleware
 {
@@ -63,6 +66,26 @@ public class BookingStatusEmailMiddleware(
 
             var guestUser = await userRepository.GetUserById(booking.GuestId, context.RequestAborted);
             var ownerUser = await userRepository.GetUserById(property.OwnerId, context.RequestAborted);
+
+            // Real-time notification
+            var payload = new
+            {
+                bookingId = booking.Id,
+                propertyId = property.Id,
+                propertyName = property.Name,
+                status = newStatus.Value.ToString(),
+                startDate = booking.StartDate.Date,
+                endDate = booking.EndDate.Date,
+                nights = Math.Max(0, (booking.EndDate.Date - booking.StartDate.Date).Days),
+                guestCount = booking.GuestCount,
+                totalPrice = booking.TotalPrice
+            };
+
+            await hubContext.Clients.User(booking.GuestId.ToString())
+                .SendAsync("BookingStatusChanged", payload, context.RequestAborted);
+
+            await hubContext.Clients.User(property.OwnerId.ToString())
+                .SendAsync("BookingStatusChanged", payload, context.RequestAborted);
 
             await SendStatusEmail(
                 guestUser,
