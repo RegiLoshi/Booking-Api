@@ -12,7 +12,9 @@ using BookingInfrastructure.Repositories;
 using BookingInfrastructure.Contracts.Repositories;
 using BookingApplication.Abstractions.Contracts.Repositories;
 using BookingApplication.Abstractions.Contracts.AuthService;
+using BookingApplication.Abstractions.Contracts.Email;
 using BookingInfrastructure.Contracts.AuthService;
+using BookingInfrastructure.Contracts.Email;
 
 public static class InfrastructureRegistration
 {
@@ -31,6 +33,9 @@ public static class InfrastructureRegistration
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<IAuthManager, AuthManager>();
+
+        services.Configure<SendGridOptions>(configuration.GetSection("SendGrid"));
+        services.AddScoped<IEmailSender, SendGridEmailSender>();
         
         return services;
     }

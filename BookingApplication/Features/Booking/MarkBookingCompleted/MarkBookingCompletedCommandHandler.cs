@@ -4,7 +4,8 @@ using BookingDomain.Entities;
 
 namespace BookingApplication.Features.Booking.MarkBookingCompleted;
 
-public class MarkBookingCompletedCommandHandler(IBookingRepository bookingRepository)
+public class MarkBookingCompletedCommandHandler(
+    IBookingRepository bookingRepository)
     : IRequestHandler<MarkBookingCompletedCommand, bool>
 {
     public async Task<bool> Handle(MarkBookingCompletedCommand request, CancellationToken cancellationToken)
