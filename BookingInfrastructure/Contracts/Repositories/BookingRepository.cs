@@ -42,4 +42,14 @@ public class BookingRepository(BookingDbContext _context) : IBookingRepository
                 cancellationToken);
     }
 
+    public async Task<List<Bookings>> GetAllBookings(CancellationToken cancellationToken = default)
+    {
+        return await _context.Bookings
+            .AsNoTracking()
+            .Include(b => b.Property)
+            .Include(b => b.Guest)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
 }

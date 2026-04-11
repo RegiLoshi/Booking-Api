@@ -29,6 +29,7 @@ app.MapUserEndpoints();
 app.MapPropertyEndpoints();
 app.MapBookingEndpoints();
 app.MapReviewEndpoints();
+app.MapAdminEndpoints();
 app.MapHub<BookingHub>("/hubs/booking");
 
 app.Run();

@@ -281,4 +281,39 @@ public class PropertyRepository : IPropertyRepository
             }
         };
     }
+
+    public async Task<List<Properties>> GetAllProperties(CancellationToken cancellationToken = default)
+    {
+        return await _context.Properties
+            .AsNoTracking()
+            .Include(p => p.Address)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> SetApprovalStatus(Guid propertyId, bool isApproved, CancellationToken cancellationToken = default)
+    {
+        var property = await _context.Properties.FirstOrDefaultAsync(p => p.Id == propertyId, cancellationToken);
+        if (property == null)
+            return false;
+
+        property.IsApproved = isApproved;
+        if (!isApproved)
+            property.IsActive = false;
+        property.LastModifiedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> SetPropertyActiveStatus(Guid propertyId, bool isActive, CancellationToken cancellationToken = default)
+    {
+        var property = await _context.Properties.FirstOrDefaultAsync(p => p.Id == propertyId, cancellationToken);
+        if (property == null)
+            return false;
+
+        property.IsActive = isActive;
+        property.LastModifiedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
 }

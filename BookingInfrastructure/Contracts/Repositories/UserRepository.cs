@@ -16,7 +16,10 @@ public class UserRepository : IUserRepository
     // IRepository<Users> methods
     public async Task<Users?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        return await _context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     public async Task<Users> Add(Users entity, CancellationToken cancellationToken = default)
@@ -42,7 +45,10 @@ public class UserRepository : IUserRepository
     // IUserRepository-specific methods
     public async Task<Users?> GetUserByEmail(string email, CancellationToken cancellationToken = default)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        return await _context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
     public async Task<Users?> GetUserById(Guid id, CancellationToken cancellationToken = default)
@@ -68,5 +74,27 @@ public class UserRepository : IUserRepository
             await Delete(user, cancellationToken);
         }
         return user!;
+    }
+
+    public async Task<List<Users>> GetAllUsers(CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .OrderBy(u => u.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> SetUserActiveStatus(Guid id, bool isActive, CancellationToken cancellationToken = default)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        if (user == null)
+            return false;
+
+        user.IsActive = isActive;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }

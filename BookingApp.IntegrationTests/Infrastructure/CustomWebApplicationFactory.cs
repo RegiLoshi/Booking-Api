@@ -30,6 +30,7 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     public TestUserContext Owner { get; private set; } = null!;
     public TestUserContext Client { get; private set; } = null!;
+    public TestUserContext Admin { get; private set; } = null!;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -78,10 +79,12 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         {
             var db = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
             await db.Database.EnsureCreatedAsync();
+            await EnsureAdminRoleExistsAsync(db);
         }
 
         Owner = await RegisterAndLoginAsync("owner");
         Client = await RegisterAndLoginAsync("client");
+        Admin = await RegisterAndLoginAsync("admin", new[] { "Admin" });
     }
 
     public new async Task DisposeAsync()
@@ -102,6 +105,8 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         var client = CreateClient(_clientOptions);
         client.DefaultRequestHeaders.Add(TestAuthHandler.UserIdHeader, user.Id.ToString());
         client.DefaultRequestHeaders.Add(TestAuthHandler.EmailHeader, user.Email);
+        if (user.Roles.Count > 0)
+            client.DefaultRequestHeaders.Add(TestAuthHandler.RolesHeader, string.Join(",", user.Roles));
         return client;
     }
 
@@ -120,7 +125,7 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         await db.SaveChangesAsync();
     }
 
-    private async Task<TestUserContext> RegisterAndLoginAsync(string label)
+    private async Task<TestUserContext> RegisterAndLoginAsync(string label, IEnumerable<string>? roles = null)
     {
         var suffix = Guid.NewGuid().ToString("N");
         var email = $"{label}.{suffix}@integration.test";
@@ -143,24 +148,62 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         registerResponse.EnsureSuccessStatusCode();
 
         using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
         var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var authManager = scope.ServiceProvider.GetRequiredService<IAuthManager>();
 
         var user = await userRepository.GetUserByEmail(email)
                    ?? throw new InvalidOperationException($"Registered test user {email} was not found.");
 
+        var roleList = roles?.Distinct().ToList() ?? new List<string>();
+        if (roleList.Count > 0)
+        {
+            var roleEntities = await db.Roles.Where(r => roleList.Contains(r.Name)).ToListAsync();
+            foreach (var role in roleEntities.Where(role => user.UserRoles.All(ur => ur.RoleId != role.Id)))
+            {
+                db.UserRoles.Add(new UserRoles
+                {
+                    UserId = user.Id,
+                    RoleId = role.Id,
+                    AssignedAt = DateTime.UtcNow
+                });
+            }
+
+            await db.SaveChangesAsync();
+            user = await userRepository.GetUserByEmail(email)
+                   ?? throw new InvalidOperationException($"Registered test user {email} was not found after role assignment.");
+        }
+
         return new TestUserContext
         {
             Id = user.Id,
             Email = email,
             Password = password,
-            Token = authManager.GenerateToken(user)
+            Token = authManager.GenerateToken(user),
+            Roles = roleList
         };
+    }
+
+    private static async Task EnsureAdminRoleExistsAsync(BookingDbContext db)
+    {
+        var existing = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+        if (existing != null)
+            return;
+
+        db.Roles.Add(new Roles
+        {
+            Id = Guid.NewGuid(),
+            Name = "Admin",
+            Description = "Administrative user",
+            isDefault = false
+        });
+
+        await db.SaveChangesAsync();
     }
 
     private async Task DeleteTempUsersAsync(BookingDbContext db)
     {
-        var tempUserIds = new[] { Owner?.Id, Client?.Id }
+        var tempUserIds = new[] { Owner?.Id, Client?.Id, Admin?.Id }
             .Where(id => id.HasValue)
             .Select(id => id!.Value)
             .ToList();
