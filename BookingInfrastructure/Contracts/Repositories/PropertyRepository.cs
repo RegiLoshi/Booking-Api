@@ -96,10 +96,13 @@ public class PropertyRepository : IPropertyRepository
                 s < b.EndDate && e > b.StartDate));
         }
 
-        // Rating aggregation (live)
-        var ratingsQuery =
+        var properties = await baseQuery.ToListAsync(cancellationToken);
+        var propertyIds = properties.Select(p => p.Id).ToList();
+
+        var ratingRows = await (
             from r in _context.Reviews.AsNoTracking()
             join b in _context.Bookings.AsNoTracking() on r.BookingId equals b.Id
+            where propertyIds.Contains(b.PropertyId)
             group r by b.PropertyId
             into g
             select new
@@ -107,62 +110,63 @@ public class PropertyRepository : IPropertyRepository
                 PropertyId = g.Key,
                 AvgRating = g.Average(x => (double)x.Rating),
                 ReviewCount = g.Count()
-            };
+            })
+            .ToListAsync(cancellationToken);
 
-        var query =
-            from p in baseQuery
-            join ra in ratingsQuery on p.Id equals ra.PropertyId into raGroup
-            from ra in raGroup.DefaultIfEmpty()
-            select new
+        var ratingsByPropertyId = ratingRows.ToDictionary(
+            x => x.PropertyId,
+            x => new { x.AvgRating, x.ReviewCount });
+
+        var results = properties
+            .Select(p =>
             {
-                Property = p,
-                AvgRating = (double?)ra.AvgRating,
-                ReviewCount = ra == null ? 0 : ra.ReviewCount
-            };
+                var hasRating = ratingsByPropertyId.TryGetValue(p.Id, out var rating);
+
+                return new PropertySearchResultDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    PropertyType = p.PropertyType,
+                    PricePerDay = p.PricePerDay,
+                    CleaningFreePerDay = p.CleaningFreePerDay,
+                    MaxGuests = p.MaxGuests,
+                    IsActive = p.IsActive,
+                    Country = p.Address.Country,
+                    City = p.Address.City,
+                    ZipCode = p.Address.ZipCode,
+                    Amenities = p.Amenities,
+                    ImageUrls = p.ImageUrls,
+                    AverageRating = hasRating ? rating!.AvgRating : null,
+                    ReviewCount = hasRating ? rating!.ReviewCount : 0
+                };
+            });
 
         if (request.MinRating.HasValue)
         {
             var min = request.MinRating.Value;
-            query = query.Where(x => x.AvgRating.HasValue && x.AvgRating.Value >= min);
+            results = results.Where(x => x.AverageRating.HasValue && x.AverageRating.Value >= min);
         }
 
-        query = request.Sort switch
+        results = request.Sort switch
         {
-            PropertySearchSort.PriceDesc => query.OrderByDescending(x => x.Property.PricePerDay).ThenBy(x => x.Property.Id),
-            PropertySearchSort.RatingDesc => query
-                .OrderByDescending(x => x.AvgRating ?? -1)
+            PropertySearchSort.PriceDesc => results.OrderByDescending(x => x.PricePerDay).ThenBy(x => x.Id),
+            PropertySearchSort.RatingDesc => results
+                .OrderByDescending(x => x.AverageRating ?? -1)
                 .ThenByDescending(x => x.ReviewCount)
-                .ThenBy(x => x.Property.PricePerDay)
-                .ThenBy(x => x.Property.Id),
-            PropertySearchSort.PopularityDesc => query
-                .OrderByDescending(x => x.Property.LastBookedOnUtc ?? DateTime.MinValue)
-                .ThenBy(x => x.Property.Id),
-            _ => query.OrderBy(x => x.Property.PricePerDay).ThenBy(x => x.Property.Id)
+                .ThenBy(x => x.PricePerDay)
+                .ThenBy(x => x.Id),
+            PropertySearchSort.PopularityDesc => results
+                .OrderByDescending(x => properties.First(p => p.Id == x.Id).LastBookedOnUtc ?? DateTime.MinValue)
+                .ThenBy(x => x.Id),
+            _ => results.OrderBy(x => x.PricePerDay).ThenBy(x => x.Id)
         };
 
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var items = await query
+        var materializedResults = results.ToList();
+        var totalCount = materializedResults.Count;
+        var items = materializedResults
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => new PropertySearchResultDto
-            {
-                Id = x.Property.Id,
-                Name = x.Property.Name,
-                PropertyType = x.Property.PropertyType,
-                PricePerDay = x.Property.PricePerDay,
-                CleaningFreePerDay = x.Property.CleaningFreePerDay,
-                MaxGuests = x.Property.MaxGuests,
-                IsActive = x.Property.IsActive,
-                Country = x.Property.Address.Country,
-                City = x.Property.Address.City,
-                ZipCode = x.Property.Address.ZipCode,
-                Amenities = x.Property.Amenities,
-                ImageUrls = x.Property.ImageUrls,
-                AverageRating = x.AvgRating,
-                ReviewCount = x.ReviewCount
-            })
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         return new SearchPropertiesResponse
         {

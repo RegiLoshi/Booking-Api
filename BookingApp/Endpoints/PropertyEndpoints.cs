@@ -13,7 +13,7 @@ public static class PropertyEndpoints
     public static void MapPropertyEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("v1/property");
-        var authGroup = group.RequireAuthorization();
+        var authGroup = group.MapGroup(string.Empty).RequireAuthorization();
 
         group.MapGet("/search", async (
             string? country,
