@@ -5,6 +5,7 @@ using BookingApp.SignalR;
 using BookingInfrastructure;
 using BookingApplication;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,13 @@ builder.Services.AddSingleton<IUserIdProvider, UserIdFromClaimProvider>();
 builder.Services.AddScoped<BookingStatusEmailMiddleware>();
 
 var app = builder.Build();
+
+if (builder.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

@@ -27,6 +27,10 @@ public sealed class PropertySearchSpecs
         => PropertySearchScenarios.Search_can_filter_by_amenities();
 
     [Fact]
+    public Task Search_returns_image_urls_for_matching_properties()
+        => PropertySearchScenarios.Search_returns_image_urls_for_matching_properties();
+
+    [Fact]
     public Task Search_can_filter_by_availability_dates()
         => PropertySearchScenarios.Search_can_filter_by_availability_dates();
 

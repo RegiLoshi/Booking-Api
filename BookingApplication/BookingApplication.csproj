@@ -15,6 +15,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BookingDomain\BookingDomain.csproj" />
+      <ProjectReference Include="..\LoginLogContracts\LoginLogContracts.csproj" />
     </ItemGroup>
 
 </Project>

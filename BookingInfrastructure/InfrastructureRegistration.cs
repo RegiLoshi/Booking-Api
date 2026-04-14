@@ -14,8 +14,10 @@ using BookingInfrastructure.Contracts.Repositories;
 using BookingApplication.Abstractions.Contracts.Repositories;
 using BookingApplication.Abstractions.Contracts.AuthService;
 using BookingApplication.Abstractions.Contracts.Email;
+using BookingApplication.Abstractions.Contracts.Logging;
 using BookingInfrastructure.Contracts.AuthService;
 using BookingInfrastructure.Contracts.Email;
+using BookingInfrastructure.Logging;
 
 public static class InfrastructureRegistration
 {
@@ -34,6 +36,16 @@ public static class InfrastructureRegistration
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<IAuthManager, AuthManager>();
+        services.Configure<BookingKafkaOptions>(configuration.GetSection("Kafka"));
+        services.AddScoped<ILoginEventPublisher>(sp =>
+        {
+            var options = sp.GetRequiredService<IConfiguration>().GetSection("Kafka").Get<BookingKafkaOptions>() ?? new BookingKafkaOptions();
+            return options.ProducerEnabled
+                ? sp.GetRequiredService<KafkaLoginEventPublisher>()
+                : sp.GetRequiredService<NoOpLoginEventPublisher>();
+        });
+        services.AddScoped<KafkaLoginEventPublisher>();
+        services.AddScoped<NoOpLoginEventPublisher>();
 
         services.Configure<SendGridOptions>(configuration.GetSection("SendGrid"));
         services.AddScoped<IEmailSender, SendGridEmailSender>();
@@ -86,4 +98,3 @@ public static class InfrastructureRegistration
         return services;
     }
 }
-

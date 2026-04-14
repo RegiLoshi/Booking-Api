@@ -15,6 +15,10 @@ public sealed class PropertyEndpointsSpecs
         => PropertyEndpointsScenarios.Owner_can_update_property();
 
     [Fact]
+    public Task Property_create_and_update_persist_multiple_image_urls()
+        => PropertyEndpointsScenarios.Property_create_and_update_persist_multiple_image_urls();
+
+    [Fact]
     public Task Public_can_get_property_details_for_visible_property()
         => PropertyEndpointsScenarios.Public_can_get_property_details_for_visible_property();
 

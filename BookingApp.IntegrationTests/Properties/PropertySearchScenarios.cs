@@ -88,6 +88,20 @@ public static class PropertySearchScenarios
         });
     }
 
+    public static async Task Search_returns_image_urls_for_matching_properties()
+    {
+        await ScenarioRunner.RunAsync(async factory =>
+        {
+            var propertyId = await PropertySeeder.CreateAsync(factory, name: "Photo Property", city: "Tirane");
+
+            var result = await PropertyApi.SearchAsync(factory, "/v1/property/search?city=Tirane&sort=4&page=1&pageSize=20");
+            var item = Assert.Single(result.Items, x => x.Id == propertyId);
+
+            Assert.NotEmpty(item.ImageUrls);
+            Assert.All(item.ImageUrls, imageUrl => Assert.StartsWith("https://", imageUrl));
+        });
+    }
+
     public static async Task Search_can_filter_by_availability_dates()
     {
         await ScenarioRunner.RunAsync(async factory =>

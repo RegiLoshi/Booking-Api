@@ -1,0 +1,14 @@
+namespace LoginLogInfrastructure.Entities;
+
+public class LoginLogEntry
+{
+    public int Id { get; set; }
+    public Guid EventId { get; set; }
+    public DateTime OccurredAtUtc { get; set; }
+    public DateTime ReceivedAtUtc { get; set; }
+    public string EventType { get; set; } = string.Empty;
+    public string SourceApp { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string PayloadJson { get; set; } = string.Empty;
+}

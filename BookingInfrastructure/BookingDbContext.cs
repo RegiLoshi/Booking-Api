@@ -63,8 +63,8 @@ public class BookingDbContext : DbContext
         modelBuilder.Entity<Properties>()
             .Property(p => p.ImageUrls)
             .HasConversion(
-                v => JsonSerializer.Serialize(v),
-                v => string.IsNullOrEmpty(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v)!,
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => string.IsNullOrEmpty(v) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null)!,
                 imageUrlsComparer);
 
         modelBuilder.Entity<Properties>()
