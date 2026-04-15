@@ -51,6 +51,9 @@ services:
       Kafka__Topic: "user.login.succeeded"
       Kafka__ProducerEnabled: "true"
       Database__RunMigrationsOnStartup: "true"
+      SendGrid__ApiKey: "${SENDGRID_API_KEY}"
+      SendGrid__FromEmail: "${SENDGRID_FROM_EMAIL}"
+      SendGrid__FromName: "${SENDGRID_FROM_NAME:-BookingApi}"
     ports:
       - "8080:8080"
 

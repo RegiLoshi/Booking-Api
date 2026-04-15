@@ -67,7 +67,7 @@ public class BookingStatusEmailMiddleware(
             var guestUser = await userRepository.GetUserById(booking.GuestId, context.RequestAborted);
             var ownerUser = await userRepository.GetUserById(property.OwnerId, context.RequestAborted);
 
-            // Real-time notification
+      
             var payload = new
             {
                 bookingId = booking.Id,

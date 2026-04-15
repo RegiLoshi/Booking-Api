@@ -16,7 +16,6 @@ public class SendGridEmailSender(IOptions<SendGridOptions> options) : IEmailSend
         string? htmlContent = null,
         CancellationToken cancellationToken = default)
     {
-        // Safe no-op when email is not configured (dev/test).
         if (string.IsNullOrWhiteSpace(_options.ApiKey) || string.IsNullOrWhiteSpace(_options.FromEmail))
             return;
 
