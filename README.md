@@ -349,6 +349,3 @@ into separately managed services.
 - frontend client example for SignalR
 - observability dashboards and structured tracing
 
-## License
-
-Add the license of your choice here.
